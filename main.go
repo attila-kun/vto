@@ -2,8 +2,51 @@ package main
 
 import (
 	"fmt"
+	"net/http"
+
+	"github.com/attilakun/crosslist/commongo"
+	"github.com/attilakun/crosslist/commongo/shopifyapp"
+	goshopify "github.com/bold-commerce/go-shopify/v3"
+	"github.com/gin-gonic/gin"
+	"github.com/rs/zerolog/log"
 )
 
 func main() {
-	fmt.Println("Hello, World!")
+	commongo.InitLog()
+	logger := log.Logger
+	shopifyAppSettings := shopifyapp.ShopifyAppSettings{
+		UseStaticFrontend: commongo.GetEnvVariable(logger, "USE_STATIC_FRONTEND") == "true",
+		ShopifyAppBaseUrl: commongo.GetEnvVariable(logger, "SHOPIFY_APP_BASE_URL"),
+	}
+	shopifyApp := &goshopify.App{
+		ApiKey:      commongo.GetEnvVariable(logger, "SHOPIFY_KEY"),
+		ApiSecret:   commongo.GetEnvVariable(logger, "SHOPIFY_SECRET"),
+		RedirectUrl: fmt.Sprintf("%s/auth/callback", shopifyAppSettings.ShopifyAppBaseUrl),
+		Scope:       "read_products,write_products",
+	}
+
+	shopifyCallback := &shopifyCallbacks{
+		handleShopInstalled: func(shopDomain string) {
+		},
+	}
+
+	router := gin.Default()
+	router.LoadHTMLGlob("templates/*")
+	router.GET("/favicon.ico", func(c *gin.Context) {
+		c.String(http.StatusOK, "")
+	})
+
+	shopifyapp.InitShopifyApp(
+		router,
+		shopifyApp,
+		shopifyAppSettings,
+		shopifyCallback,
+		getLogPorcessedShopifyRoute("shopifyHandler"),
+	)
+}
+
+func getLogPorcessedShopifyRoute(str string) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		log.Info().Msgf("Processed Shopify %s route: %s", str, c.Request.URL.Path)
+	}
 }
