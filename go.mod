@@ -6,6 +6,7 @@ require (
 	github.com/attilakun/crosslist v0.0.0
 	github.com/bold-commerce/go-shopify/v3 v3.13.0
 	github.com/gin-gonic/gin v1.9.1
+	github.com/joho/godotenv v1.5.1
 	github.com/rs/zerolog v1.29.0
 )
 
