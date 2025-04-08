@@ -3,9 +3,12 @@ import '@shopify/polaris/build/esm/styles.css';
 import { AppProvider, Card, Page, Button, Text, Thumbnail, Tabs, BlockStack, InlineStack, Box, Divider } from '@shopify/polaris';
 // import { MobileBackArrowMajor } from '@shopify/polaris-icons';
 import translations from '@shopify/polaris/locales/en.json';
+// import { authenticatedFetch } from "@shopify/app-bridge/utilities";
+import {useAppBridge} from '@shopify/app-bridge-react';
 
 function AppPage() {
   const [selectedTab, setSelectedTab] = useState(0);
+  const shopify = useAppBridge();
 
   const tabs = [
     {
@@ -57,7 +60,19 @@ function AppPage() {
                   }}>Cancel</div>
                 </div>
                 
-                <Button size="large" primary>
+                <Button size="large" primary onClick={() => {
+                  shopify.toast.show('Blog post template generated');
+
+                  // authenticatedFetch('/api/test', {
+                  //   method: 'POST',
+                  //   headers: {
+                  //     'Content-Type': 'application/json',
+                  //   },
+                  //   body: JSON.stringify({}),
+                  // })
+                  //   .then(response => response.json())
+                  //   .then(data => console.log(data));
+                }}>
                   Take photo
                 </Button>
               </BlockStack>

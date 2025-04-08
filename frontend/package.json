@@ -10,6 +10,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@shopify/app-bridge": "^3.7.10",
+    "@shopify/app-bridge-react": "^4.1.8",
     "@shopify/polaris": "^13.9.5",
     "react": "^18.0.0",
     "react-dom": "^18.0.0"

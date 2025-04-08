@@ -46,6 +46,8 @@ func main() {
 		getLogPorcessedShopifyRoute("shopifyHandler"),
 	)
 
+	setupApi(router, shopifyApp.ApiSecret)
+
 	shopifyapp.InitFrontendHandler(
 		router,
 		getLogPorcessedShopifyRoute("frontendHandler"),
@@ -71,4 +73,19 @@ func getLogPorcessedShopifyRoute(str string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		log.Info().Msgf("Processed Shopify %s route: %s", str, c.Request.URL.Path)
 	}
+}
+
+func setupApi(
+	router *gin.Engine,
+	apiSecret string,
+) {
+	apiGroup := router.Group(
+		"/api",
+		shopifyapp.HandleAuthToken(apiSecret),
+	)
+
+	apiGroup.POST("/test", func(c *gin.Context) {
+		user := shopifyapp.GetUserFromContext(c)
+		c.JSON(http.StatusOK, gin.H{"message": fmt.Sprintf("Hello, %d!", user.Id)})
+	})
 }
