@@ -3,8 +3,10 @@ module github.com/attila-kun/vto
 go 1.23.2
 
 require (
+	github.com/a-h/templ v0.2.793
 	github.com/attilakun/crosslist v0.0.0
 	github.com/bold-commerce/go-shopify/v3 v3.13.0
+	github.com/evanw/esbuild v0.24.0
 	github.com/gin-gonic/gin v1.9.1
 	github.com/joho/godotenv v1.5.1
 	github.com/rs/zerolog v1.29.0

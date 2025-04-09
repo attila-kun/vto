@@ -3,10 +3,13 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"strconv"
 
+	"github.com/attila-kun/vto/frontend"
 	"github.com/attilakun/crosslist/commongo"
 	"github.com/attilakun/crosslist/commongo/shopifyapp"
 	goshopify "github.com/bold-commerce/go-shopify/v3"
+	esbuildapi "github.com/evanw/esbuild/pkg/api"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 	"github.com/rs/zerolog/log"
@@ -16,9 +19,14 @@ func main() {
 	godotenv.Load()
 	commongo.InitLog()
 	logger := log.Logger
+	frontendDevPort, err := strconv.ParseUint(commongo.GetEnvVariable(logger, "SHOPIFY_FRONTEND_DEV_PORT"), 10, 16)
+	if err != nil {
+		logger.Fatal().Err(err).Msg("Failed to parse frontend dev port")
+	}
 	shopifyAppSettings := shopifyapp.ShopifyAppSettings{
 		UseStaticFrontend: commongo.GetEnvVariable(logger, "USE_STATIC_FRONTEND") == "true",
 		ShopifyAppBaseUrl: commongo.GetEnvVariable(logger, "SHOPIFY_APP_BASE_URL"),
+		FrontendDevPort:   uint16(frontendDevPort),
 	}
 	shopifyApp := &goshopify.App{
 		ApiKey:      commongo.GetEnvVariable(logger, "SHOPIFY_KEY"),
@@ -47,11 +55,14 @@ func main() {
 
 	setupApi(router, shopifyApp.ApiSecret)
 
+	initFrontend(shopifyAppSettings)
+
 	shopifyapp.InitFrontendHandler(
 		router,
 		getLogPorcessedShopifyRoute("frontendHandler"),
 		shopifyAppSettings,
 		shopifyCallback,
+		frontend.Index(shopifyApp.ApiKey),
 	)
 
 	port := commongo.GetEnvVariable(log.Logger, "PORT")
@@ -87,4 +98,24 @@ func setupApi(
 		user := shopifyapp.GetUserFromContext(c)
 		c.JSON(http.StatusOK, gin.H{"message": fmt.Sprintf("Hello, %d!", user.Id)})
 	})
+}
+
+func initFrontend(shopifyAppSettings shopifyapp.ShopifyAppSettings) {
+	ctx, esbuildErr := esbuildapi.Context(esbuildapi.BuildOptions{
+		EntryPoints: []string{"frontend/src/main.tsx"},
+		Outdir:      "frontend/dist",
+		Bundle:      true,
+		JSX:         esbuildapi.JSXAutomatic,
+	})
+	if esbuildErr != nil {
+		log.Fatal().Err(esbuildErr).Msgf("Failed to create esbuild context: %s", esbuildErr)
+	}
+
+	_, err2 := ctx.Serve(esbuildapi.ServeOptions{
+		Port: uint16(shopifyAppSettings.FrontendDevPort),
+		Host: "localhost",
+	})
+	if err2 != nil {
+		log.Fatal().Err(err2).Msgf("Failed to serve frontend: %s", err2)
+	}
 }
