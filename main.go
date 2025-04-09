@@ -27,7 +27,9 @@ func main() {
 		Scope:       "read_products,write_products",
 	}
 
-	shopifyCallback := &shopifyCallbacks{}
+	shopifyCallback := &shopifyCallbacks{
+		shops: make(map[string]string),
+	}
 
 	router := gin.Default()
 	// router.LoadHTMLGlob("templates/*")
