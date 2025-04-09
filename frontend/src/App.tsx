@@ -63,15 +63,13 @@ function AppPage() {
                 <Button size="large" primary onClick={() => {
                   shopify.toast.show('Blog post template generated');
 
-                  // authenticatedFetch('/api/test', {
-                  //   method: 'POST',
-                  //   headers: {
-                  //     'Content-Type': 'application/json',
-                  //   },
-                  //   body: JSON.stringify({}),
-                  // })
-                  //   .then(response => response.json())
-                  //   .then(data => console.log(data));
+                  fetch('/api/test', {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({}),
+                  })
                 }}>
                   Take photo
                 </Button>

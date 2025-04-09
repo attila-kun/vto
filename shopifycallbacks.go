@@ -5,13 +5,13 @@ import (
 )
 
 type shopifyCallbacks struct {
-	handleShopInstalled func(shopDomain string)
+	shops map[string]string
 }
 
 var _ shopifyapp.ShopifyCallbacks = (*shopifyCallbacks)(nil)
 
 func (s *shopifyCallbacks) HandleShopInstalled(shopDomain string) {
-	s.handleShopInstalled(shopDomain)
+	s.shops[shopDomain] = shopDomain
 }
 
 func (s *shopifyCallbacks) DeleteAccessToken(shopDomain string) error {
@@ -19,7 +19,11 @@ func (s *shopifyCallbacks) DeleteAccessToken(shopDomain string) error {
 }
 
 func (s *shopifyCallbacks) GetShop(shopDomain string) (*shopifyapp.Shop, error) {
-	return nil, nil
+	return &shopifyapp.Shop{
+		Id:          int64(1),
+		AccessToken: "TODO",
+		ShopDomain:  shopDomain,
+	}, nil
 }
 
 func (s *shopifyCallbacks) UpsertAccessToken(shop string, accessToken string) error {

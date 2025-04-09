@@ -27,10 +27,7 @@ func main() {
 		Scope:       "read_products,write_products",
 	}
 
-	shopifyCallback := &shopifyCallbacks{
-		handleShopInstalled: func(shopDomain string) {
-		},
-	}
+	shopifyCallback := &shopifyCallbacks{}
 
 	router := gin.Default()
 	// router.LoadHTMLGlob("templates/*")
