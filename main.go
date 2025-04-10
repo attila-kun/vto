@@ -40,6 +40,11 @@ func main() {
 	}
 
 	router := gin.Default()
+
+	router.Use(func(c *gin.Context) {
+		c.Request = c.Request.WithContext(log.Logger.WithContext(c.Request.Context()))
+		c.Next()
+	})
 	// router.LoadHTMLGlob("templates/*")
 	router.GET("/favicon.ico", func(c *gin.Context) {
 		c.String(http.StatusOK, "")
