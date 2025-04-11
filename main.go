@@ -99,9 +99,21 @@ func setupApi(
 		shopifyapp.HandleAuthToken(apiSecret),
 	)
 
-	apiGroup.POST("/test", func(c *gin.Context) {
+	apiGroup.POST("/product/:id", func(c *gin.Context) {
 		user := shopifyapp.GetUserFromContext(c)
-		c.JSON(http.StatusOK, gin.H{"message": fmt.Sprintf("Hello, %d!", user.Id)})
+		id := c.Param("id")
+		productId := fmt.Sprintf("gid://shopify/Product/%s", id)
+		product, err := user.ShopifyGraphQLClient.ProductGet(c.Request.Context(), productId)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+		images := product.Product.Images.Edges
+		imageUrls := make([]string, len(images))
+		for i, image := range images {
+			imageUrls[i] = image.Node.Url
+		}
+		c.JSON(http.StatusOK, gin.H{"images": imageUrls})
 	})
 }
 

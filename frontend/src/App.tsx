@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import '@shopify/polaris/build/esm/styles.css';
 import { AppProvider, Card, Page, Button, Text, Thumbnail, Tabs, BlockStack, InlineStack, Box, Divider } from '@shopify/polaris';
 // import { MobileBackArrowMajor } from '@shopify/polaris-icons';
@@ -134,6 +134,28 @@ function AppPage() {
 }
 
 function ProductPage() {
+  const location = useLocation();
+  const query = new URLSearchParams(location.search);
+  const productId = query.get('id');
+
+  const [images, setImages] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (productId) {
+      fetch(`/api/product/${productId}`, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        method: 'POST',
+      })
+        .then(res => res.json())
+        .then(data => {
+          // Assuming data.images is an array of image URLs
+          setImages(data.images);
+        });
+    }
+  }, [productId]);
+
   return <div>Product</div>;
 }
 
