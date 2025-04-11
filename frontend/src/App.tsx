@@ -5,6 +5,12 @@ import { AppProvider, Card, Page, Button, Text, Thumbnail, Tabs, BlockStack, Inl
 import translations from '@shopify/polaris/locales/en.json';
 // import { authenticatedFetch } from "@shopify/app-bridge/utilities";
 import {useAppBridge} from '@shopify/app-bridge-react';
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  useLocation,
+} from 'react-router-dom';
 
 function AppPage() {
   const [selectedTab, setSelectedTab] = useState(0);
@@ -127,10 +133,19 @@ function AppPage() {
   );
 }
 
+function ProductPage() {
+  return <div>Product</div>;
+}
+
 function App() {
   return (
     <AppProvider i18n={translations} features={{ newDesignLanguage: true }}>
-      <AppPage />
+      <Router>
+        <Routes>
+          <Route path="/" element={<AppPage />} />
+          <Route path="/product" element={<ProductPage />} />
+        </Routes>
+      </Router>
     </AppProvider>
   );
 }
