@@ -156,7 +156,18 @@ function ProductPage() {
     }
   }, [productId]);
 
-  return <div>Product</div>;
+  return <div>
+    <BlockStack gap="100">
+      <InlineStack gap="300" wrap={false} align="center">
+        {images.map((src, index) => (
+          <Card key={index} padding="0">
+            <Thumbnail source={src} alt={`Product ${index + 1}`} size="large" />
+          </Card>
+        ))}
+      </InlineStack>
+      
+    </BlockStack>
+  </div>;
 }
 
 function App() {
