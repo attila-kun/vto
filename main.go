@@ -40,8 +40,8 @@ func main() {
 		Scope:       "read_products,write_products",
 	}
 
-	shopifyCallback := &shopifyCallbacks{
-		shops: make(map[string]string),
+	shopifyCallback := &Store{
+		db: db,
 	}
 
 	router := gin.Default()
