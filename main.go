@@ -12,6 +12,7 @@ import (
 	esbuildapi "github.com/evanw/esbuild/pkg/api"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
+	_ "github.com/lib/pq"
 	"github.com/rs/zerolog/log"
 )
 
@@ -19,6 +20,10 @@ func main() {
 	godotenv.Load()
 	commongo.InitLog()
 	logger := log.Logger
+
+	db := commongo.InitDB(logger, commongo.GetEnvVariable(logger, "POSTGRES_CONNECTION_STRING"))
+	defer db.Close()
+
 	frontendDevPort, err := strconv.ParseUint(commongo.GetEnvVariable(logger, "SHOPIFY_FRONTEND_DEV_PORT"), 10, 16)
 	if err != nil {
 		logger.Fatal().Err(err).Msg("Failed to parse frontend dev port")
