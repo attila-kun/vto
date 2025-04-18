@@ -7,14 +7,17 @@ import (
 	"crypto/x509"
 	"crypto/x509/pkix"
 	"encoding/pem"
+	"flag"
 	"log"
 	"math/big"
 	"os"
 	"time"
 )
 
-// for local development
 func main() {
+	domain := flag.String("domain", "dev.vtoapp.com", "Domain name for the certificate")
+	flag.Parse()
+
 	priv, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
 	if err != nil {
 		log.Fatal(err)
@@ -31,14 +34,14 @@ func main() {
 	template := x509.Certificate{
 		SerialNumber: serialNumber,
 		Subject: pkix.Name{
-			CommonName: "dev.vtoapp.com",
+			CommonName: *domain,
 		},
 		NotBefore:             notBefore,
 		NotAfter:              notAfter,
 		KeyUsage:              x509.KeyUsageKeyEncipherment | x509.KeyUsageDigitalSignature,
 		ExtKeyUsage:           []x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth},
 		BasicConstraintsValid: true,
-		DNSNames:              []string{"dev.vtoapp.com"},
+		DNSNames:              []string{*domain},
 	}
 
 	derBytes, err := x509.CreateCertificate(rand.Reader, &template, &template, &priv.PublicKey, priv)
@@ -46,14 +49,17 @@ func main() {
 		log.Fatal(err)
 	}
 
-	certOut, err := os.Create("dev.vtoapp.com.crt")
+	certFile := *domain + ".crt"
+	keyFile := *domain + ".key"
+
+	certOut, err := os.Create(certFile)
 	if err != nil {
 		log.Fatal(err)
 	}
 	pem.Encode(certOut, &pem.Block{Type: "CERTIFICATE", Bytes: derBytes})
 	certOut.Close()
 
-	keyOut, err := os.Create("dev.vtoapp.com.key")
+	keyOut, err := os.Create(keyFile)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -64,5 +70,5 @@ func main() {
 	pem.Encode(keyOut, &pem.Block{Type: "EC PRIVATE KEY", Bytes: privBytes})
 	keyOut.Close()
 
-	log.Println("✅ Generated dev.vtoapp.com.crt and dev.vtoapp.com.key")
+	log.Printf("✅ Generated %s and %s\n", certFile, keyFile)
 }
